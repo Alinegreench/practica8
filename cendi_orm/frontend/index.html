@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca CENDI - Sistema de Gestión</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-button:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .data-grid {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .data-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .data-table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Biblioteca CENDI</h1>
+            <p>Sistema de Gestión de Libros y Préstamos</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-button active" onclick="showTab('autores')">✍️ Autores</button>
+            <button class="tab-button" onclick="showTab('editoriales')">🏢 Editoriales</button>
+            <button class="tab-button" onclick="showTab('libros')">📖 Libros</button>
+            <button class="tab-button" onclick="showTab('alumnos')">👨‍🎓 Alumnos</button>
+            <button class="tab-button" onclick="showTab('prestamos')">📋 Préstamos</button>
+        </div>
+
+        <!-- Autores -->
+        <div id="autores" class="content-section active">
+            <h2 class="section-title">Gestión de Autores</h2>
+            
+            <div class="form-container">
+                <h3>Agregar Nuevo Autor</h3>
+                <form id="autor-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre:</label>
+                            <input type="text" id="autor-nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nacionalidad:</label>
+                            <input type="text" id="autor-nacionalidad" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">➕ Agregar Autor</button>
+                </form>
+            </div>
+
+            <div class="data-grid">
+                <h3>Lista de Autores</h3>
+                <button class="btn btn-secondary" onclick="loadAutores()">🔄 Cargar Autores</button>
+                <div id="autores-loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Cargando autores...</p>
+                </div>
+                <table class="data-table" id="autores-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Nacionalidad</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Editoriales -->
+        <div id="editoriales" class="content-section">
+            <h2 class="section-title">Gestión de Editoriales</h2>
+            
+            <div class="form-container">
+                <h3>Agregar Nueva Editorial</h3>
+                <form id="editorial-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre Editorial:</label>
+                            <input type="text" id="editorial-nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Dirección:</label>
+                            <input type="text" id="editorial-direccion" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Teléfono:</label>
+                            <input type="tel" id="editorial-telefono" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">🏢 Agregar Editorial</button>
+                </form>
+            </div>
+
+            <div class="data-grid">
+                <h3>Lista de Editoriales</h3>
+                <button class="btn btn-secondary" onclick="loadEditoriales()">🔄 Cargar Editoriales</button>
+                <div id="editoriales-loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Cargando editoriales...</p>
+                </div>
+                <table class="data-table" id="editoriales-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Dirección</th>
+                            <th>Teléfono</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Libros -->
+        <div id="libros" class="content-section">
+            <h2 class="section-title">Gestión de Libros</h2>
+            
+            <div class="form-container">
+                <h3>Agregar Nuevo Libro</h3>
+                <form id="libro-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Título:</label>
+                            <input type="text" id="libro-titulo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Año Publicación:</label>
+                            <input type="number" id="libro-anio" min="1000" max="2025">
+                        </div>
+                        <div class="form-group">
+                            <label>Número de Páginas:</label>
+                            <input type="number" id="libro-paginas" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Editorial:</label>
+                            <select id="libro-editorial" required>
+                                <option value="">Seleccionar editorial...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">📖 Agregar Libro</button>
+                </form>
+            </div>
+
+            <div class="data-grid">
+                <h3>Lista de Libros</h3>
+                <button class="btn btn-secondary" onclick="loadLibros()">🔄 Cargar Libros</button>
+                <div id="libros-loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Cargando libros...</p>
+                </div>
+                <table class="data-table" id="libros-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Año</th>
+                            <th>Páginas</th>
+                            <th>Editorial</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Alumnos -->
+        <div id="alumnos" class="content-section">
+            <h2 class="section-title">Gestión de Alumnos</h2>
+            
+            <div class="form-container">
+                <h3>Registrar Nuevo Alumno</h3>
+                <form id="alumno-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre:</label>
+                            <input type="text" id="alumno-nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Apellido Paterno:</label>
+                            <input type="text" id="alumno-paterno" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Apellido Materno:</label>
+                            <input type="text" id="alumno-materno" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Escuela:</label>
+                            <input type="text" id="alumno-escuela" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Ciclo Escolar:</label>
+                            <input type="text" id="alumno-ciclo" value="2024-2025" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">👨‍🎓 Registrar Alumno</button>
+                </form>
+            </div>
+
+            <div class="data-grid">
+                <h3>Lista de Alumnos</h3>
+                <button class="btn btn-secondary" onclick="loadAlumnos()">🔄 Cargar Alumnos</button>
+                <div id="alumnos-loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Cargando alumnos...</p>
+                </div>
+                <table class="data-table" id="alumnos-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre Completo</th>
+                            <th>Escuela</th>
+                            <th>Ciclo Escolar</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Préstamos -->
+        <div id="prestamos" class="content-section">
+            <h2 class="section-title">Gestión de Préstamos</h2>
+            
+            <div class="form-container">
+                <h3>Registrar Nuevo Préstamo</h3>
+                <form id="prestamo-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Alumno:</label>
+                            <select id="prestamo-alumno" required>
+                                <option value="">Seleccionar alumno...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Libro:</label>
+                            <select id="prestamo-libro" required>
+                                <option value="">Seleccionar libro...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha Préstamo:</label>
+                            <input type="date" id="prestamo-fecha" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Fecha Devolución:</label>
+                            <input type="date" id="prestamo-devolucion" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">📋 Registrar Préstamo</button>
+                </form>
+            </div>
+
+            <div class="data-grid">
+                <h3>Lista de Préstamos</h3>
+                <button class="btn btn-secondary" onclick="loadPrestamos()">🔄 Cargar Préstamos</button>
+                <div id="prestamos-loading" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p>Cargando préstamos...</p>
+                </div>
+                <table class="data-table" id="prestamos-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Alumno</th>
+                            <th>Libro</th>
+                            <th>Fecha Préstamo</th>
+                            <th>Fecha Devolución</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+
+        // Navegación entre tabs
+        function showTab(tabName) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Auto-cargar datos al cambiar de tab
+            if (tabName === 'libros') loadEditoriales();
+            if (tabName === 'prestamos') {
+                loadAlumnos();
+                loadLibros();
+            }
+        }
+
+        // Función para mostrar alertas
+        function showAlert(message, type = 'success') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            const container = document.querySelector('.content-section.active .form-container');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // AUTORES
+        document.getElementById('autor-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                nombre: document.getElementById('autor-nombre').value,
+                nacionalidad: document.getElementById('autor-nacionalidad').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/autores/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showAlert('Autor agregado exitosamente');
+                    document.getElementById('autor-form').reset();
+                    loadAutores();
+                } else {
+                    showAlert('Error al agregar autor', 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión', 'error');
+            }
+        });
+
+        async function loadAutores() {
+            const loading = document.getElementById('autores-loading');
+            const table = document.getElementById('autores-table');
+            
+            loading.style.display = 'block';
+            table.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE}/autores/`);
+                const autores = await response.json();
+                
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                autores.forEach(autor => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${autor.id_autor}</td>
+                        <td>${autor.nombre}</td>
+                        <td>${autor.nacionalidad}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                loading.style.display = 'none';
+                table.style.display = 'table';
+            } catch (error) {
+                loading.style.display = 'none';
+                showAlert('Error al cargar autores', 'error');
+            }
+        }
+
+        // EDITORIALES
+        document.getElementById('editorial-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                nombre_editorial: document.getElementById('editorial-nombre').value,
+                direccion: document.getElementById('editorial-direccion').value,
+                telefono: document.getElementById('editorial-telefono').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/editoriales/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showAlert('Editorial agregada exitosamente');
+                    document.getElementById('editorial-form').reset();
+                    loadEditoriales();
+                } else {
+                    showAlert('Error al agregar editorial', 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión', 'error');
+            }
+        });
+
+        async function loadEditoriales() {
+            const loading = document.getElementById('editoriales-loading');
+            const table = document.getElementById('editoriales-table');
+            
+            loading.style.display = 'block';
+            table.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE}/editoriales/`);
+                const editoriales = await response.json();
+                
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                editoriales.forEach(editorial => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${editorial.id_editorial}</td>
+                        <td>${editorial.nombre_editorial}</td>
+                        <td>${editorial.direccion}</td>
+                        <td>${editorial.telefono}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                // Llenar select de libros
+                const libroSelect = document.getElementById('libro-editorial');
+                if (libroSelect) {
+                    libroSelect.innerHTML = '<option value="">Seleccionar editorial...</option>';
+                    editoriales.forEach(editorial => {
+                        const option = document.createElement('option');
+                        option.value = editorial.id_editorial;
+                        option.textContent = editorial.nombre_editorial;
+                        libroSelect.appendChild(option);
+                    });
+                }
+                
+                loading.style.display = 'none';
+                table.style.display = 'table';
+            } catch (error) {
+                loading.style.display = 'none';
+                showAlert('Error al cargar editoriales', 'error');
+            }
+        }
+
+        // LIBROS
+        document.getElementById('libro-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                titulo: document.getElementById('libro-titulo').value,
+                anio_publicacion: parseInt(document.getElementById('libro-anio').value) || null,
+                num_paginas: parseInt(document.getElementById('libro-paginas').value) || null,
+                id_editorial: parseInt(document.getElementById('libro-editorial').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/libros/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showAlert('Libro agregado exitosamente');
+                    document.getElementById('libro-form').reset();
+                    loadLibros();
+                } else {
+                    showAlert('Error al agregar libro', 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión', 'error');
+            }
+        });
+
+        async function loadLibros() {
+            const loading = document.getElementById('libros-loading');
+            const table = document.getElementById('libros-table');
+            
+            loading.style.display = 'block';
+            table.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE}/libros/`);
+                const libros = await response.json();
+                
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                libros.forEach(libro => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${libro.id_libro}</td>
+                        <td>${libro.titulo}</td>
+                        <td>${libro.anio_publicacion || '-'}</td>
+                        <td>${libro.num_paginas || '-'}</td>
+                        <td>${libro.id_editorial}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                // Llenar select de préstamos
+                const prestamoSelect = document.getElementById('prestamo-libro');
+                if (prestamoSelect) {
+                    prestamoSelect.innerHTML = '<option value="">Seleccionar libro...</option>';
+                    libros.forEach(libro => {
+                        const option = document.createElement('option');
+                        option.value = libro.id_libro;
+                        option.textContent = libro.titulo;
+                        prestamoSelect.appendChild(option);
+                    });
+                }
+                
+                loading.style.display = 'none';
+                table.style.display = 'table';
+            } catch (error) {
+                loading.style.display = 'none';
+                showAlert('Error al cargar libros', 'error');
+            }
+        }
+
+        // ALUMNOS
+        document.getElementById('alumno-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                nombre: document.getElementById('alumno-nombre').value,
+                ap_paterno: document.getElementById('alumno-paterno').value,
+                ap_materno: document.getElementById('alumno-materno').value,
+                escuela: document.getElementById('alumno-escuela').value,
+                ciclo_escolar: document.getElementById('alumno-ciclo').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/alumnos/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showAlert('Alumno registrado exitosamente');
+                    document.getElementById('alumno-form').reset();
+                    document.getElementById('alumno-ciclo').value = '2024-2025';
+                    loadAlumnos();
+                } else {
+                    showAlert('Error al registrar alumno', 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión', 'error');
+            }
+        });
+
+        async function loadAlumnos() {
+            const loading = document.getElementById('alumnos-loading');
+            const table = document.getElementById('alumnos-table');
+            
+            loading.style.display = 'block';
+            table.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE}/alumnos/`);
+                const alumnos = await response.json();
+                
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                alumnos.forEach(alumno => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${alumno.id_alumno}</td>
+                        <td>${alumno.nombre} ${alumno.ap_paterno} ${alumno.ap_materno}</td>
+                        <td>${alumno.escuela}</td>
+                        <td>${alumno.ciclo_escolar}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                // Llenar select de préstamos
+                const prestamoSelect = document.getElementById('prestamo-alumno');
+                if (prestamoSelect) {
+                    prestamoSelect.innerHTML = '<option value="">Seleccionar alumno...</option>';
+                    alumnos.forEach(alumno => {
+                        const option = document.createElement('option');
+                        option.value = alumno.id_alumno;
+                        option.textContent = `${alumno.nombre} ${alumno.ap_paterno} ${alumno.ap_materno}`;
+                        prestamoSelect.appendChild(option);
+                    });
+                }
+                
+                loading.style.display = 'none';
+                table.style.display = 'table';
+            } catch (error) {
+                loading.style.display = 'none';
+                showAlert('Error al cargar alumnos', 'error');
+            }
+        }
+
+        // PRÉSTAMOS
+        document.getElementById('prestamo-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                id_alumno: parseInt(document.getElementById('prestamo-alumno').value),
+                id_libro: parseInt(document.getElementById('prestamo-libro').value),
+                fecha_prestamo: document.getElementById('prestamo-fecha').value,
+                fecha_devolucion: document.getElementById('prestamo-devolucion').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/prestamos/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showAlert('Préstamo registrado exitosamente');
+                    document.getElementById('prestamo-form').reset();
+                    loadPrestamos();
+                } else {
+                    showAlert('Error al registrar préstamo', 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión', 'error');
+            }
+        });
+
+        async function loadPrestamos() {
+            const loading = document.getElementById('prestamos-loading');
+            const table = document.getElementById('prestamos-table');
+            
+            loading.style.display = 'block';
+            table.style.display = 'none';
+            
+            try {
+                const response = await fetch(`${API_BASE}/prestamos/`);
+                const prestamos = await response.json();
+                
+                const tbody = table.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                prestamos.forEach(prestamo => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${prestamo.id_prestamo}</td>
+                        <td>Alumno ID: ${prestamo.id_alumno}</td>
+                        <td>Libro ID: ${prestamo.id_libro}</td>
+                        <td>${prestamo.fecha_prestamo}</td>
+                        <td>${prestamo.fecha_devolucion}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                loading.style.display = 'none';
+                table.style.display = 'table';
+            } catch (error) {
+                loading.style.display = 'none';
+                showAlert('Error al cargar préstamos', 'error');
+            }
+        }
+
+        // Cargar datos iniciales
+        window.onload = function() {
+            loadAutores();
+        };
+    </script>
+</body>
+</html>
