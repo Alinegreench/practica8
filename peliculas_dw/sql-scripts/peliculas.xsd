@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="pelicula">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="nombre" type="xs:string"/>
+        <xs:element name="resumen" type="xs:string"/>
+        <xs:element name="fecha_estreno" type="xs:date"/>
+        <xs:element name="director" type="xs:string"/>
+        <xs:element name="productor" type="xs:string"/>
+        <xs:element name="ranking" type="xs:decimal"/>
+        <xs:element name="salario" type="xs:decimal"/>
+        <xs:element name="aportacion_economica" type="xs:decimal"/>
+        <xs:element name="premio" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="nombre" type="xs:string"/>
+              <xs:element name="lugar_certamen" type="xs:string"/>
+              <xs:element name="tipo_certamen" type="xs:string"/>
+              <xs:element name="fecha" type="xs:date"/>
+              <xs:element name="autor" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="critica" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="medio" type="xs:string"/>
+              <xs:element name="fecha" type="xs:date"/>
+              <xs:element name="autor" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="actor" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="nombre" type="xs:string"/>
+              <xs:element name="estado_civil" type="xs:string"/>
+              <xs:element name="telefono" type="xs:string"/>
+              <xs:element name="fecha_nacimiento" type="xs:date"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
